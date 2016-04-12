@@ -5,6 +5,9 @@ var HelloWorldLayer = cc.Layer.extend({
     pelota:null,    
     puntuacion1:null,
     puntuacion2:null,
+    
+    
+    
     inicializar:function(){
         var size = cc.winSize;
         var color = cc.color(100,100,100);
@@ -37,11 +40,42 @@ var HelloWorldLayer = cc.Layer.extend({
         this.addChild(this.puntuacion2,0);
         
     },
+    
+    move: function(keyCode, event){
+        var size = cc.winSize;
+        var evento = event.getCurrentTarget();
+      
+        //mover jugador 1    
+        if(keyCode == cc.KEY.w){
+            if(evento.jugador1.getPositionY() + 40 < size.height - 40)
+                evento.jugador1.setPosition(evento.jugador1.getPositionX(), evento.jugador1.getPositionY() + 40);
+        }
+    
+        if(keyCode == cc.KEY.s){
+            if(evento.jugador1.getPositionY() - 40 > -40)
+                evento.jugador1.setPosition(evento.jugador1.getPositionX(), evento.jugador1.getPositionY() - 40);
+        }
+        //mover jugador 2
+        if(keyCode == cc.KEY.up){
+            if(evento.jugador2.getPositionY() + 40 < size.height - 40)
+                evento.jugador2.setPosition(evento.jugador2.getPositionX(), evento.jugador2.getPositionY() + 40);
+        }
+        
+    
+        if(keyCode == cc.KEY.down){
+            if(evento.jugador2.getPositionY() - 40 > -40)
+                evento.jugador2.setPosition(evento.jugador2.getPositionX(), evento.jugador2.getPositionY() - 40);
+        }
+    },
+    
     ctor:function () {
         this._super();
         this.inicializar();
 
-
+        cc.eventManager.addListener({
+			event: cc.EventListener.KEYBOARD,
+			onKeyPressed:  this.move
+		}, this);
         return true;
     }
 });
