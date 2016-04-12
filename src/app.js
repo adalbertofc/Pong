@@ -5,12 +5,22 @@ var HelloWorldLayer = cc.Layer.extend({
     pelota:null,    
     puntuacion1:null,
     puntuacion2:null,
+    velocidad:null,
+    dirX:0,
+    dirY:0,
+    score1:0,
+    score2:0,
     
-    
+    random: function getRandomInt(min, max) {
+    	return Math.floor(Math.random() * (max - min + 1)) + min;
+	},
     
     inicializar:function(){
         var size = cc.winSize;
         var color = cc.color(100,100,100);
+        this.dirX = this.random(-3,3);
+        this.dirY = this.random(-3,3);
+        this.velocidad = this.random(0.0001,0.0001);
 
         this.jugador1 =  new cc.DrawNode();
         this.jugador1.drawRect(cc.p(0,0),cc.p(20,100),color,3);
@@ -68,10 +78,50 @@ var HelloWorldLayer = cc.Layer.extend({
         }
     },
     
+    actualizarBola: function(){
+        var pos = this.pelota.getPosition();
+        var bX=this.pelota.getPosition().x;
+        var bY=this.pelota.getPosition().y;
+        
+        if(pos.x<=0){
+            this.score2++;
+            this.restart();
+             
+        }
+        if(pos.x >= cc.winSize.width){
+            this.score1++;
+            this.restart();
+        }
+        if(pos.y <= 20 || pos.y >= cc.winSize.height - 40){
+            this.dirY *= -1;
+        }
+        if(cc.rectIntersectsRect(this.pelota.getBoundingBox(), this.jugador1.getBoundingBox())){
+            cc.log("collision");
+            this.dirX *= -1.3;
+        }
+        if(cc.rectIntersectsRect(this.pelota.getBoundingBox(), this.jugador2.getBoundingBox())){
+            cc.log("collision");
+            this.dirX *= -1.3;
+        }
+        this.pelota.setPosition(bX+this.dirX, bY+this.dirY);
+    },
+    
+    restart:function(){
+        var size = cc.winSize;
+        this.puntuacion1.setString(this.score1);
+        this.puntuacion2.setString(this.score2);
+        this.velocidad = this.random(0.001,0.01);
+        this.pelota.setPosition(size.width / 2,size.height / 2);
+        this.MOVX = this.random(-3,3);
+        this.MOVY = this.random(-3,3);
+        
+    },
+    
     ctor:function () {
         this._super();
         this.inicializar();
-
+        this.schedule(this.actualizarBola,this.velocidad);
+        
         cc.eventManager.addListener({
 			event: cc.EventListener.KEYBOARD,
 			onKeyPressed:  this.move
